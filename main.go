@@ -8,33 +8,33 @@ import (
 	"github.com/gorilla/mux"
 )
 
-var Message string
-
-type requestBody struct {
-	Message string `json:"message"`
-}
-
-func MessageHandler(w http.ResponseWriter, r *http.Request) {
+func AddMessage(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
-	var body requestBody
+	var body Message
 	err := decoder.Decode(&body)
 	if err != nil {
 		http.Error(w, "Ошибка чтения json", http.StatusBadRequest)
 		return
 	}
-	Message = body.Message
-	fmt.Fprintln(w, "Сообщение обновлено")
-
+	DB.Create(&body)
+	fmt.Fprintf(w, "Сообщение %v добавлено", body.Text)
 }
 
-func HelloHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello, %v!", Message)
+func GetMessage(w http.ResponseWriter, r *http.Request) {
+	var getResult []Message
+	DB.Find(&getResult)
+	fmt.Fprintln(w, getResult)
 }
 
 func main() {
+	InitDB()
+
+	DB.AutoMigrate(&Message{})
+
 	router := mux.NewRouter()
 
-	router.HandleFunc("/api/hello", HelloHandler).Methods("GET")
-	router.HandleFunc("/api/message", MessageHandler).Methods("POST")
+	router.HandleFunc("/api/message", GetMessage).Methods("GET")
+	router.HandleFunc("/api/message", AddMessage).Methods("POST")
+
 	http.ListenAndServe(":8080", router)
 }
