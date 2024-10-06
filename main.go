@@ -46,7 +46,12 @@ func UpdateMessage(w http.ResponseWriter, r *http.Request) {
 
 	message.Text = body.Text
 	DB.Save(&message)
-	fmt.Fprintf(w, "Сообщение с ID %v обновлено на %v", id, body.Text)
+	// fmt.Fprintf(w, "Сообщение с ID %v обновлено на %v", id, body.Text)
+	result, _ := json.Marshal(map[string]string{
+		"Text": message.Text,
+	})
+	fmt.Fprintln(w, string(result))
+
 }
 
 func DeleteMessage(w http.ResponseWriter, r *http.Request) {
