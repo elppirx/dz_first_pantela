@@ -21,9 +21,9 @@ type Idurl = uint
 // User defines model for User.
 type User struct {
 	CreatedAt *time.Time `json:"created_at,omitempty"`
-	DeletedAt *time.Time `json:"deleted_at",omitempty`
-	Email     *string    `json:"email,omitempty"`
+	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	Id        *uint      `json:"id,omitempty"`
+	Email     *string    `json:"email,omitempty"`
 	Password  *string    `json:"password,omitempty"`
 	UpdatedAt *time.Time `json:"updated_at,omitempty"`
 }
