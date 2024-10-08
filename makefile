@@ -16,5 +16,8 @@ run:
 gen:
 	oapi-codegen -config openapi/.openapi -include-tags messages -package messages openapi/openapi.yaml > ./iternal/web/messages/api.gen.go
 
+gen-users:
+	oapi-codegen -config openapi/.openapi -include-tags users -package users openapi/openapi.yaml > ./iternal/web/users/api.gen.go
+
 lint:
 	golangci-lint run --out-format=colored-line-number

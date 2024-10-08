@@ -4,28 +4,40 @@ import (
 	"dz_first_pantela/iternal/database"
 	"dz_first_pantela/iternal/handlers"
 	"dz_first_pantela/iternal/messagesService"
+	"dz_first_pantela/iternal/usersService"
 	"dz_first_pantela/iternal/web/messages"
+	"dz_first_pantela/iternal/web/users"
+	"log"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"log"
 )
 
 func main() {
 	database.InitDB()
 	//database.DB.AutoMigrate(&messagesService.Message{})
+	//Messages
+	messagesRepo := messagesService.NewMessageRepository(database.DB)
+	usersRepo := usersService.NewUserRepository(database.DB)
 
-	repo := messagesService.NewMessageRepository(database.DB)
-	service := messagesService.NewService(*repo)
+	messagesService := messagesService.NewService(*messagesRepo)
+	usersService := usersService.NewUsersService(*usersRepo)
 
-	handler := handlers.NewHandler(service)
+	//Users
+
+	messagesHandler := handlers.NewHandler(messagesService)
+	usersHandler := handlers.NewUserHandler(usersService)
 
 	e := echo.New()
 
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	strictHandler := messages.NewStrictHandler(handler, nil)
-	messages.RegisterHandlers(e, strictHandler)
+	messagesStrictHandler := messages.NewStrictHandler(messagesHandler, nil)
+	usersStrictHandler := users.NewStrictHandler(usersHandler, nil)
+
+	messages.RegisterHandlers(e, messagesStrictHandler)
+	users.RegisterHandlers(e, usersStrictHandler)
 
 	if err := e.Start(":8080"); err != nil {
 		log.Fatalf("failed to start server: %s", err)
